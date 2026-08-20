@@ -21,7 +21,7 @@ const zhTranslations: Translations = {
   'toolbar.shape.rectangle': '长方形 — R',
   'toolbar.shape.ellipse': '圆 — O',
   'toolbar.shape.triangle': '三角形',
-  'toolbar.shape.terminal': '椭圆角矩形',
+  'toolbar.shape.terminal': '开始/结束',
   'toolbar.shape.noteCurlyLeft': '左花括注释',
   'toolbar.shape.noteCurlyRight': '右花括注释',
   'toolbar.shape.diamond': '菱形',
@@ -65,13 +65,16 @@ const zhTranslations: Translations = {
   'general.redo': '重做',
   'general.menu': '应用菜单',
   'general.moreOptions': '更多选项',
-  'general.duplicate': '复制',
+  'general.duplicate': '重复',
   'general.delete': '删除',
 
   'general.copyToClipboard': '复制到剪贴板',
   'general.copyToClipboard.svg': 'SVG',
-  'general.copyToClipboard.pngWithoutBackground': 'PNG（无背景）',
-  'general.copyToClipboard.pngWithBackground': 'PNG（含背景）',
+  'general.copyToClipboard.png': 'PNG',
+  'general.copyToClipboard.transparent': '透明背景',
+  'toast.copyToClipboard.svg': '已将所选项作为 SVG 复制到剪贴板',
+  'toast.copyToClipboard.png': '已将所选项作为 PNG 复制到剪贴板',
+  'toast.copyToClipboard.mode.transparent': '（透明背景）',
 
   // Language
   'language.switcher': 'Language',
@@ -82,7 +85,8 @@ const zhTranslations: Translations = {
   'language.vietnamese': 'Tiếng Việt',
   // Menu items
   'menu.open': '打开',
-  'menu.saveFile': '保存文件',
+  'menu.saveFile': '保存到当前文件',
+  'menu.saveAsFile': '另存为',
   'menu.exportImage': '导出图片',
   'menu.exportImage.svg': 'SVG',
   'menu.exportImage.png': 'PNG',

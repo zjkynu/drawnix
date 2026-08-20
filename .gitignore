@@ -40,4 +40,10 @@ Thumbs.db
 
 .nx/cache
 .nx/workspace-data
+<<<<<<< HEAD
 run.bat
+=======
+
+.claude/worktrees
+.claude/settings.local.json
+>>>>>>> 8a91504c78b876ebe73abcb5da9fac0b19d60636

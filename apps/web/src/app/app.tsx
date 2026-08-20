@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Drawnix } from '@drawnix/drawnix';
-import { PlaitBoard, PlaitElement, PlaitTheme, Viewport } from '@plait/core';
+import { Drawnix, DrawnixToolState } from '@drawnix/drawnix';
+import { PlaitElement, PlaitTheme, Viewport } from '@plait/core';
 import localforage from 'localforage';
 
 type AppValue = {
@@ -9,7 +9,17 @@ type AppValue = {
   theme?: PlaitTheme;
 };
 
+type Language = 'zh' | 'en' | 'ru' | 'ar' | 'vi';
+
+type MainBoardPreference = {
+  language: Language;
+  copyTransparent: boolean;
+  exportTransparent: boolean;
+};
+
 const MAIN_BOARD_CONTENT_KEY = 'main_board_content';
+const MAIN_BOARD_TOOL_STATE_KEY = 'main_board_tool_state';
+const MAIN_BOARD_PREFERENCE_KEY = 'main_board_preference';
 
 localforage.config({
   name: 'Drawnix',
@@ -19,30 +29,70 @@ localforage.config({
 
 export function App() {
   const [value, setValue] = useState<AppValue>({ children: [] });
+  const [initialToolState, setInitialToolState] = useState<Partial<DrawnixToolState>>();
+  const [preference, setPreference] = useState<MainBoardPreference>({
+    language: 'zh',
+    copyTransparent: false,
+    exportTransparent: false,
+  });
+  const [loaded, setLoaded] = useState(false);
 
   const [tutorial, setTutorial] = useState(false);
 
+  const updatePreference = (partialPreference: Partial<MainBoardPreference>) => {
+    setPreference((currentPreference) => {
+      const nextPreference = { ...currentPreference, ...partialPreference };
+      localforage.setItem(MAIN_BOARD_PREFERENCE_KEY, nextPreference);
+      return nextPreference;
+    });
+  };
+
   useEffect(() => {
     const loadData = async () => {
-      const storedData = (await localforage.getItem(
-        MAIN_BOARD_CONTENT_KEY
-      )) as AppValue;
+      const [storedData, storedToolState, storedPreference] = await Promise.all([
+        localforage.getItem(MAIN_BOARD_CONTENT_KEY),
+        localforage.getItem(MAIN_BOARD_TOOL_STATE_KEY),
+        localforage.getItem(MAIN_BOARD_PREFERENCE_KEY),
+      ]);
       if (storedData) {
-        setValue(storedData);
-        if (storedData.children && storedData.children.length === 0) {
+        const appValue = storedData as AppValue;
+        setValue(appValue);
+        if (appValue.children && appValue.children.length === 0) {
           setTutorial(true);
         }
-        return;
+      } else {
+        setTutorial(true);
       }
-      setTutorial(true);
+      if (storedToolState) {
+        setInitialToolState(storedToolState as Partial<DrawnixToolState>);
+      }
+      if (storedPreference) {
+        setPreference(storedPreference as MainBoardPreference);
+      }
+      setLoaded(true);
     };
     loadData();
   }, []);
+  if (!loaded) {
+    return null;
+  }
   return (
     <Drawnix
       value={value.children}
       viewport={value.viewport}
       theme={value.theme}
+      initialToolState={initialToolState}
+      initialLanguage={preference.language}
+      initialPreference={{
+        copyTransparent: preference.copyTransparent,
+        exportTransparent: preference.exportTransparent,
+      }}
+      onLanguageChange={(language) => {
+        updatePreference({ language });
+      }}
+      onPreferenceChange={({ copyTransparent, exportTransparent }) => {
+        updatePreference({ copyTransparent, exportTransparent });
+      }}
       onChange={(value) => {
         const newValue = value as AppValue;
         localforage.setItem(MAIN_BOARD_CONTENT_KEY, newValue);
@@ -51,34 +101,15 @@ export function App() {
           setTutorial(false);
         }
       }}
+      onToolStateChange={(toolState) => {
+        localforage.setItem(MAIN_BOARD_TOOL_STATE_KEY, toolState);
+      }}
       tutorial={tutorial}
-      afterInit={(board) => {
+      afterInit={(_board) => {
         console.log('board initialized');
-
-        // console.log(
-        //   `add __drawnix__web__debug_log to window, so you can call add log anywhere, like: window.__drawnix__web__console('some thing')`
-        // );
-        // (window as any)['__drawnix__web__console'] = (value: string) => {
-        //   addDebugLog(board, value);
-        // };
       }}
     ></Drawnix>
   );
 }
-
-const addDebugLog = (board: PlaitBoard, value: string) => {
-  const container = PlaitBoard.getBoardContainer(board).closest(
-    '.drawnix'
-  ) as HTMLElement;
-  let consoleContainer = container.querySelector('.drawnix-console');
-  if (!consoleContainer) {
-    consoleContainer = document.createElement('div');
-    consoleContainer.classList.add('drawnix-console');
-    container.append(consoleContainer);
-  }
-  const div = document.createElement('div');
-  div.innerHTML = value;
-  consoleContainer.append(div);
-};
 
 export default App;

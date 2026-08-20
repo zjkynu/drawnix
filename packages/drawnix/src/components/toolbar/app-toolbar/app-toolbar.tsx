@@ -1,13 +1,7 @@
 import { useBoard } from '@plait-board/react-board';
 import Stack from '../../stack';
 import { ToolButton } from '../../tool-button';
-import {
-  DuplicateIcon,
-  MenuIcon,
-  RedoIcon,
-  TrashIcon,
-  UndoIcon,
-} from '../../icons';
+import { DuplicateIcon, MenuIcon, RedoIcon, TrashIcon, UndoIcon } from '../../icons';
 import classNames from 'classnames';
 import {
   ATTACHED_ELEMENT_CLASS_NAME,
@@ -19,7 +13,14 @@ import {
 import { Island } from '../../island';
 import { Popover, PopoverContent, PopoverTrigger } from '../../popover/popover';
 import { useState } from 'react';
-import { CleanBoard, OpenFile, SaveAsImage, SaveToFile, Socials } from './app-menu-items';
+import {
+  CleanBoard,
+  OpenFile,
+  SaveAsFile,
+  SaveAsImage,
+  SaveToFile,
+  Socials,
+} from './app-menu-items';
 import { LanguageSwitcherMenu } from './language-switcher-menu';
 import Menu from '../../menu/menu';
 import MenuSeparator from '../../menu/menu-separator';
@@ -34,10 +35,7 @@ export const AppToolbar = () => {
   const isUndoDisabled = board.history.undos.length <= 0;
   const isRedoDisabled = board.history.redos.length <= 0;
   return (
-    <Island
-      padding={1}
-      className={classNames('app-toolbar', ATTACHED_ELEMENT_CLASS_NAME)}
-    >
+    <Island padding={1} className={classNames('app-toolbar', ATTACHED_ELEMENT_CLASS_NAME)}>
       <Stack.Row gap={1}>
         <Popover
           key={0}
@@ -69,6 +67,7 @@ export const AppToolbar = () => {
             >
               <OpenFile></OpenFile>
               <SaveToFile></SaveToFile>
+              <SaveAsFile></SaveAsFile>
               <SaveAsImage></SaveAsImage>
               <CleanBoard></CleanBoard>
               <MenuSeparator />
@@ -129,7 +128,6 @@ export const AppToolbar = () => {
             }}
           />
         )}
-        
       </Stack.Row>
     </Island>
   );

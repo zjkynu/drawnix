@@ -34,9 +34,7 @@ export function usePopover({
 }: PopoverOptions = {}) {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
   const [labelId, setLabelId] = React.useState<string | undefined>();
-  const [descriptionId, setDescriptionId] = React.useState<
-    string | undefined
-  >();
+  const [descriptionId, setDescriptionId] = React.useState<string | undefined>();
 
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = setControlledOpen ?? setUncontrolledOpen;
@@ -86,9 +84,7 @@ export function usePopover({
 type ContextType =
   | (ReturnType<typeof usePopover> & {
       setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
-      setDescriptionId: React.Dispatch<
-        React.SetStateAction<string | undefined>
-      >;
+      setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
     })
   | null;
 
@@ -114,11 +110,7 @@ export function Popover({
   // This can accept any props as options, e.g. `placement`,
   // or other positioning options.
   const popover = usePopover({ modal, ...restOptions });
-  return (
-    <PopoverContext.Provider value={popover}>
-      {children}
-    </PopoverContext.Provider>
-  );
+  return <PopoverContext.Provider value={popover}>{children}</PopoverContext.Provider>;
 }
 
 interface PopoverTriggerProps {
@@ -162,8 +154,11 @@ export const PopoverTrigger = React.forwardRef<
 
 export const PopoverContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLProps<HTMLDivElement> & { container?: HTMLElement | null }
->(function PopoverContent({ container, style, ...props }, propRef) {
+  React.HTMLProps<HTMLDivElement> & {
+    container?: HTMLElement | null;
+    initialFocus?: number | React.MutableRefObject<HTMLElement | null>;
+  }
+>(function PopoverContent({ container, initialFocus, style, ...props }, propRef) {
   const { context: floatingContext, ...context } = usePopoverContext();
   const ref = useMergeRefs([context.refs.setFloating, propRef]);
 
@@ -171,7 +166,11 @@ export const PopoverContent = React.forwardRef<
 
   return (
     <FloatingPortal root={container}>
-      <FloatingFocusManager context={floatingContext} modal={context.modal}>
+      <FloatingFocusManager
+        context={floatingContext}
+        modal={context.modal}
+        initialFocus={initialFocus}
+      >
         <div
           ref={ref}
           style={{ ...context.floatingStyles, ...style }}

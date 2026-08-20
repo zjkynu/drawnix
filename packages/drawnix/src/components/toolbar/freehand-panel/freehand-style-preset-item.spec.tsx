@@ -1,18 +1,19 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import { vi } from 'vitest';
 import {
   FreehandStylePresetItem,
   getFreehandPreviewRadius,
   type FreehandStylePresetItemProps,
 } from './freehand-style-preset-item';
 
-jest.mock('../../../i18n', () => ({
+vi.mock('../../../i18n', () => ({
   useI18n: () => ({
     t: (key: string) => key,
   }),
 }));
 
-jest.mock('@plait-board/react-board', () => ({
+vi.mock('@plait-board/react-board', () => ({
   useBoard: () => ({
     theme: {
       themeColorMode: 'light',
@@ -20,58 +21,55 @@ jest.mock('@plait-board/react-board', () => ({
   }),
 }));
 
-jest.mock('../../../plugins/freehand/utils', () => ({
+vi.mock('../../../plugins/freehand/utils', () => ({
   getFreehandDefaultStrokeColor: () => '#000000',
 }));
 
-jest.mock('../../../plugins/freehand/type', () => ({
+vi.mock('../../../plugins/freehand/type', () => ({
   FREEHAND_STROKE_WIDTH_STEP: 0.25,
-  MAX_FREEHAND_STROKE_WIDTH: 12,
+  MAX_FREEHAND_STROKE_WIDTH: 24,
   MIN_FREEHAND_STROKE_WIDTH: 1,
 }));
 
-jest.mock('../../../utils/color', () => ({
+vi.mock('../../../utils/color', () => ({
   isNoColor: () => false,
-  isWhite: (color?: string) =>
-    color === '#FFFFFF' || color === '#ffffff',
+  isWhite: (color?: string) => color === '#FFFFFF' || color === '#ffffff',
 }));
 
-jest.mock('../../tool-button', () => ({
+vi.mock('../../tool-button', () => ({
   ToolButton: ({ children, className, selected, ...props }: any) => (
     <button
       type="button"
       aria-label={props['aria-label']}
-      className={[className, selected ? 'tool-icon--selected' : '']
-        .filter(Boolean)
-        .join(' ')}
+      className={[className, selected ? 'tool-icon--selected' : ''].filter(Boolean).join(' ')}
     >
       {children}
     </button>
   ),
 }));
 
-jest.mock('../../popover/popover', () => ({
+vi.mock('../../popover/popover', () => ({
   Popover: ({ children }: any) => <div>{children}</div>,
   PopoverContent: ({ children }: any) => <div>{children}</div>,
   PopoverTrigger: ({ children }: any) => <>{children}</>,
 }));
 
-jest.mock('../../island', () => ({
+vi.mock('../../island', () => ({
   Island: ({ children }: any) => <div>{children}</div>,
 }));
 
-jest.mock('../../stack', () => ({
+vi.mock('../../stack', () => ({
   __esModule: true,
   default: {
     Col: ({ children }: any) => <div>{children}</div>,
   },
 }));
 
-jest.mock('../../size-slider', () => ({
+vi.mock('../../size-slider', () => ({
   SizeSlider: () => null,
 }));
 
-jest.mock('../../color-picker', () => ({
+vi.mock('../../color-picker', () => ({
   ColorPicker: () => null,
 }));
 
@@ -85,9 +83,9 @@ const createProps = (
   },
   selected: false,
   container: null,
-  onSelect: jest.fn(),
-  onColorChange: jest.fn(),
-  onSizeChange: jest.fn(),
+  onSelect: vi.fn(),
+  onColorChange: vi.fn(),
+  onSizeChange: vi.fn(),
   ...overrides,
 });
 
@@ -97,19 +95,18 @@ describe('getFreehandPreviewRadius', () => {
   });
 
   it('maps the maximum stroke width to the maximum preview radius', () => {
-    expect(getFreehandPreviewRadius(12)).toBeCloseTo(5.5);
+    expect(getFreehandPreviewRadius(24)).toBeCloseTo(5.5);
   });
 
   it('clamps out-of-range stroke widths', () => {
     expect(getFreehandPreviewRadius(0)).toBeCloseTo(2);
-    expect(getFreehandPreviewRadius(20)).toBeCloseTo(5.5);
+    expect(getFreehandPreviewRadius(32)).toBeCloseTo(5.5);
   });
 
   it('increases monotonically across the supported stroke-width range', () => {
     expect(getFreehandPreviewRadius(3)).toBeLessThan(getFreehandPreviewRadius(6));
-    expect(getFreehandPreviewRadius(6)).toBeLessThan(
-      getFreehandPreviewRadius(9)
-    );
+    expect(getFreehandPreviewRadius(6)).toBeLessThan(getFreehandPreviewRadius(12));
+    expect(getFreehandPreviewRadius(12)).toBeLessThan(getFreehandPreviewRadius(18));
   });
 });
 
@@ -137,13 +134,9 @@ describe('FreehandStylePresetItem', () => {
   });
 
   it('updates only the fill radius when the preset size changes', () => {
-    const { container, rerender } = render(
-      <FreehandStylePresetItem {...createProps()} />
-    );
+    const { container, rerender } = render(<FreehandStylePresetItem {...createProps()} />);
 
-    const initialFill = container.querySelector(
-      '.freehand-style-preset__preview-fill'
-    );
+    const initialFill = container.querySelector('.freehand-style-preset__preview-fill');
     const initialRadius = initialFill?.getAttribute('r');
     const initialCenterX = initialFill?.getAttribute('cx');
     const initialCenterY = initialFill?.getAttribute('cy');
@@ -154,7 +147,7 @@ describe('FreehandStylePresetItem', () => {
           preset: {
             id: 'preset-1',
             color: '#FF4500',
-            size: 12,
+            size: 24,
           },
         })}
       />
@@ -165,9 +158,7 @@ describe('FreehandStylePresetItem', () => {
     expect(nextFill?.getAttribute('cx')).toBe(initialCenterX);
     expect(nextFill?.getAttribute('cy')).toBe(initialCenterY);
     expect(nextFill?.getAttribute('r')).not.toBe(initialRadius);
-    expect(nextFill?.getAttribute('r')).toBe(
-      `${getFreehandPreviewRadius(12)}`
-    );
+    expect(nextFill?.getAttribute('r')).toBe(`${getFreehandPreviewRadius(24)}`);
   });
 
   it('renders a dedicated white contrast structure without the standard color ring', () => {
@@ -183,12 +174,8 @@ describe('FreehandStylePresetItem', () => {
       />
     );
 
-    const contrastRing = container.querySelector(
-      '.freehand-style-preset__preview-ring-contrast'
-    );
-    const contrastFill = container.querySelector(
-      '.freehand-style-preset__preview-fill-contrast'
-    );
+    const contrastRing = container.querySelector('.freehand-style-preset__preview-ring-contrast');
+    const contrastFill = container.querySelector('.freehand-style-preset__preview-fill-contrast');
 
     expect(container.querySelectorAll('circle')).toHaveLength(3);
     expect(contrastRing).not.toBeNull();
@@ -196,12 +183,8 @@ describe('FreehandStylePresetItem', () => {
     expect(contrastFill).not.toBeNull();
     expect(contrastFill?.getAttribute('stroke-width')).toBe('1');
     expect(contrastFill?.getAttribute('fill')).toBe('#FFFFFF');
-    expect(
-      container.querySelector('.freehand-style-preset__preview-ring')
-    ).toBeNull();
-    expect(
-      container.querySelector('.freehand-style-preset__preview-fill')
-    ).toBeNull();
+    expect(container.querySelector('.freehand-style-preset__preview-ring')).toBeNull();
+    expect(container.querySelector('.freehand-style-preset__preview-fill')).toBeNull();
   });
 
   it('keeps the non-white outer ring color unchanged when selected', () => {
@@ -234,12 +217,8 @@ describe('FreehandStylePresetItem', () => {
       />
     );
 
-    const contrastRing = container.querySelector(
-      '.freehand-style-preset__preview-ring-contrast'
-    );
-    const contrastFill = container.querySelector(
-      '.freehand-style-preset__preview-fill-contrast'
-    );
+    const contrastRing = container.querySelector('.freehand-style-preset__preview-ring-contrast');
+    const contrastFill = container.querySelector('.freehand-style-preset__preview-fill-contrast');
 
     expect(container.querySelectorAll('circle')).toHaveLength(3);
     expect(contrastRing?.getAttribute('stroke')).toBe('var(--color-gray-30)');

@@ -4,7 +4,9 @@ export const DEFAULT_FREEHAND_STROKE_WIDTH = 2;
 
 export const MIN_FREEHAND_STROKE_WIDTH = 1;
 
-export const MAX_FREEHAND_STROKE_WIDTH = 12;
+// Covers roughly 2x PPI displays (for example, 2K/16-inch) without changing
+// the default fine stroke.
+export const MAX_FREEHAND_STROKE_WIDTH = 24;
 
 export const FREEHAND_STROKE_WIDTH_STEP = 0.25;
 
@@ -26,15 +28,12 @@ export const DEFAULT_FREEHAND_PRESETS: FreehandDrawOptions[] = [
     strokeWidth: 6,
   },
   {
-    strokeColor:
-      getClassicColorValue('color.green') || CLASSIC_COLORS[6].value,
+    strokeColor: getClassicColorValue('color.green') || CLASSIC_COLORS[6].value,
     strokeWidth: 10,
   },
 ];
 
-export const resolveFreehandDrawOptions = (
-  drawOptions: Partial<FreehandDrawOptions> = {}
-) => {
+export const resolveFreehandDrawOptions = (drawOptions: Partial<FreehandDrawOptions> = {}) => {
   const normalizedDrawOptions = {} as Partial<FreehandDrawOptions>;
 
   if (typeof drawOptions.strokeColor === 'string' && drawOptions.strokeColor) {

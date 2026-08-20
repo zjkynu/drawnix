@@ -69,9 +69,11 @@ const enTranslations: Translations = {
   'general.delete': 'Delete',
   'general.copyToClipboard': 'Copy to Clipboard',
   'general.copyToClipboard.svg': 'SVG',
-  'general.copyToClipboard.pngWithoutBackground': 'PNG (no background)',
-  'general.copyToClipboard.pngWithBackground': 'PNG (with background)',
-
+  'general.copyToClipboard.png': 'PNG',
+  'general.copyToClipboard.transparent': 'Transparent',
+  'toast.copyToClipboard.svg': 'Copied selected items as SVG to clipboard',
+  'toast.copyToClipboard.png': 'Copied selected items as PNG to clipboard',
+  'toast.copyToClipboard.mode.transparent': '(Transparent background)',
   // Language
   'language.switcher': 'Language',
   'language.chinese': '中文',
@@ -81,7 +83,8 @@ const enTranslations: Translations = {
   'language.vietnamese': 'Tiếng Việt',
   // Menu items
   'menu.open': 'Open',
-  'menu.saveFile': 'Save File',
+  'menu.saveFile': 'Save to current file',
+  'menu.saveAsFile': 'Save As',
   'menu.exportImage': 'Export Image',
   'menu.exportImage.svg': 'SVG',
   'menu.exportImage.png': 'PNG',
@@ -95,14 +98,12 @@ const enTranslations: Translations = {
   'dialog.mermaid.flowchart': 'flowcharts',
   'dialog.mermaid.sequence': 'sequence diagrams',
   'dialog.mermaid.class': 'class diagrams',
-  'dialog.mermaid.otherTypes':
-    ', and other diagram types (rendered as images).',
+  'dialog.mermaid.otherTypes': ', and other diagram types (rendered as images).',
   'dialog.mermaid.syntax': 'Mermaid Syntax',
   'dialog.mermaid.placeholder': 'Write your Mermaid chart definition here…',
   'dialog.mermaid.preview': 'Preview',
   'dialog.mermaid.insert': 'Insert',
-  'dialog.markdown.description':
-    'Supports automatic conversion of Markdown syntax to mind map.',
+  'dialog.markdown.description': 'Supports automatic conversion of Markdown syntax to mind map.',
   'dialog.markdown.syntax': 'Markdown Syntax',
   'dialog.markdown.placeholder': 'Write your Markdown text definition here...',
   'dialog.markdown.preview': 'Preview',
@@ -115,8 +116,7 @@ const enTranslations: Translations = {
 
   // Clean confirm dialog
   'cleanConfirm.title': 'Clear Board',
-  'cleanConfirm.description':
-    'This will clear the entire board. Do you want to continue?',
+  'cleanConfirm.description': 'This will clear the entire board. Do you want to continue?',
   'cleanConfirm.cancel': 'Cancel',
   'cleanConfirm.ok': 'OK',
 

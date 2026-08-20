@@ -70,9 +70,11 @@ const ruTranslations: Translations = {
 
   'general.copyToClipboard': 'Копировать в буфер обмена',
   'general.copyToClipboard.svg': 'SVG',
-  'general.copyToClipboard.pngWithoutBackground': 'PNG (без фона)',
-  'general.copyToClipboard.pngWithBackground': 'PNG (с фоном)',
-
+  'general.copyToClipboard.png': 'PNG',
+  'general.copyToClipboard.transparent': 'Прозрачный фон',
+  'toast.copyToClipboard.svg': 'Выбранные элементы скопированы в буфер обмена как SVG',
+  'toast.copyToClipboard.png': 'Выбранные элементы скопированы в буфер обмена как PNG',
+  'toast.copyToClipboard.mode.transparent': '(Прозрачный фон)',
   // Language
   'language.switcher': 'Language',
   'language.chinese': '中文',
@@ -83,7 +85,8 @@ const ruTranslations: Translations = {
 
   // Menu items
   'menu.open': 'Открыть',
-  'menu.saveFile': 'Сохранить',
+  'menu.saveFile': 'Сохранить в текущий файл',
+  'menu.saveAsFile': 'Сохранить как',
   'menu.exportImage': 'Экспортировать',
   'menu.exportImage.svg': 'SVG',
   'menu.exportImage.png': 'PNG',
@@ -97,18 +100,15 @@ const ruTranslations: Translations = {
   'dialog.mermaid.flowchart': 'блок-схемы',
   'dialog.mermaid.sequence': 'диаграммы последовательностей',
   'dialog.mermaid.class': 'диаграммы классов',
-  'dialog.mermaid.otherTypes':
-    ' и другие диаграммы (преобразуются в изображения).',
+  'dialog.mermaid.otherTypes': ' и другие диаграммы (преобразуются в изображения).',
   'dialog.mermaid.syntax': 'Синтаксис Mermaid',
-  'dialog.mermaid.placeholder':
-    'Введите сюда описание вашей Mermaid-диаграммы…',
+  'dialog.mermaid.placeholder': 'Введите сюда описание вашей Mermaid-диаграммы…',
   'dialog.mermaid.preview': 'Предпросмотр',
   'dialog.mermaid.insert': 'Вставить',
   'dialog.markdown.description':
     'Поддерживается автоматическое преобразование синтаксиса Markdown в mind-карты.',
   'dialog.markdown.syntax': 'Синтаксис Markdown',
-  'dialog.markdown.placeholder':
-    'Введите сюда описание вашего текста Markdown…',
+  'dialog.markdown.placeholder': 'Введите сюда описание вашего текста Markdown…',
   'dialog.markdown.preview': 'Предпросмотр',
   'dialog.markdown.insert': 'Вставить',
   'dialog.error.loadMermaid': 'Не удалось загрузить библотеку Mermaid',
@@ -119,8 +119,7 @@ const ruTranslations: Translations = {
 
   // Clean confirm dialog
   'cleanConfirm.title': 'Очистить доску',
-  'cleanConfirm.description':
-    'Это удалит всё содержимое доски. Вы хотите продолжить?',
+  'cleanConfirm.description': 'Это удалит всё содержимое доски. Вы хотите продолжить?',
   'cleanConfirm.cancel': 'Отмена',
   'cleanConfirm.ok': 'ОК',
 

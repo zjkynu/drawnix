@@ -1,28 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ToolButton } from '../../tool-button';
 import classNames from 'classnames';
 import { useI18n } from '../../../i18n';
 import { deleteFragment, duplicateElements, PlaitBoard } from '@plait/core';
-import { DuplicateIcon, MoreOptionsIcon, TrashIcon } from '../../icons';
+import { MoreOptionsIcon } from '../../icons';
 import { Popover, PopoverContent, PopoverTrigger } from '../../popover/popover';
 import Menu from '../../menu/menu';
 import MenuItem from '../../menu/menu-item';
-import { useState } from 'react';
+import MenuItemContentSwitch from '../../menu/menu-item-content-switch';
 import { getShortcutKey } from '../../../utils/common';
-import {
-  canCopySelectionAs,
-  copySelectionAsPng,
-  copySelectionAsSvg,
-} from '../../../utils/image';
+import { canCopySelectionAs, copySelectionAsPng, copySelectionAsSvg } from '../../../utils/image';
+import { useDrawnix } from '../../../hooks/use-drawnix';
 
 export type MoreOptionsButtonProps = {
   board: PlaitBoard;
 };
 
-export const MoreOptionsButton: React.FC<MoreOptionsButtonProps> = ({
-  board,
-}) => {
+export const MoreOptionsButton: React.FC<MoreOptionsButtonProps> = ({ board }) => {
   const { t } = useI18n();
+  const { appState, setAppState } = useDrawnix();
   const container = PlaitBoard.getBoardContainer(board);
   const [menuOpen, setMenuOpen] = useState(false);
   const canCopySvg = canCopySelectionAs('svg');
@@ -63,7 +59,6 @@ export const MoreOptionsButton: React.FC<MoreOptionsButtonProps> = ({
             onSelect={() => {
               duplicateElements(board);
             }}
-            icon={DuplicateIcon}
             shortcut={getShortcutKey('CtrlOrCmd+D')}
             aria-label={t('general.duplicate')}
           >
@@ -73,7 +68,6 @@ export const MoreOptionsButton: React.FC<MoreOptionsButtonProps> = ({
             onSelect={() => {
               deleteFragment(board);
             }}
-            icon={TrashIcon}
             shortcut={getShortcutKey('Backspace')}
             aria-label={t('general.delete')}
           >
@@ -91,30 +85,39 @@ export const MoreOptionsButton: React.FC<MoreOptionsButtonProps> = ({
               >
                 <MenuItem
                   onSelect={() => {
-                    void copySelectionAsSvg(board).catch(() => undefined);
+                    copySelectionAsSvg(board).catch(() => undefined);
                   }}
                   disabled={!canCopySvg}
+                  shortcut={getShortcutKey('Shift+Alt+C')}
                   aria-label={t('general.copyToClipboard.svg')}
                 >
                   {t('general.copyToClipboard.svg')}
                 </MenuItem>
                 <MenuItem
                   onSelect={() => {
-                    void copySelectionAsPng(board).catch(() => undefined);
+                    copySelectionAsPng(board).catch(() => undefined);
                   }}
                   disabled={!canCopyPng}
-                  aria-label={t('general.copyToClipboard.pngWithoutBackground')}
+                  aria-label={t('general.copyToClipboard.png')}
                 >
-                  {t('general.copyToClipboard.pngWithoutBackground')}
+                  {t('general.copyToClipboard.png')}
                 </MenuItem>
                 <MenuItem
-                  onSelect={() => {
-                    void copySelectionAsPng(board, true).catch(() => undefined);
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    setAppState((currentAppState) => ({
+                      ...currentAppState,
+                      copyTransparent: !currentAppState.copyTransparent,
+                    }));
                   }}
-                  disabled={!canCopyPng}
-                  aria-label={t('general.copyToClipboard.pngWithBackground')}
+                  className="menu-item--setting"
+                  role="menuitemcheckbox"
+                  aria-checked={appState.copyTransparent}
+                  aria-label={t('general.copyToClipboard.transparent')}
                 >
-                  {t('general.copyToClipboard.pngWithBackground')}
+                  <MenuItemContentSwitch checked={appState.copyTransparent}>
+                    {t('general.copyToClipboard.transparent')}
+                  </MenuItemContentSwitch>
                 </MenuItem>
               </Menu>
             }

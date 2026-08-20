@@ -3,8 +3,10 @@ import { base64ToBlob, boardToImage, download } from './common';
 import { fileOpen } from '../data/filesystem';
 import { IMAGE_MIME_TYPES } from '../constants';
 import { insertImage } from '../data/image';
-import { getBackgroundColor, isWhite } from './color';
+import { getBackgroundColor } from './color';
 import { TRANSPARENT } from '../constants/color';
+import type { DrawnixBoard } from '../hooks/use-drawnix';
+import { i18nInsidePlaitHook, type Translations } from '../i18n';
 
 type ClipboardImageFormat = 'svg' | 'png';
 type ExportElements = ReturnType<typeof getSelectedElements>;
@@ -12,6 +14,11 @@ type ExportElements = ReturnType<typeof getSelectedElements>;
 const CLIPBOARD_MIME_TYPES: Record<ClipboardImageFormat, string> = {
   svg: 'image/svg+xml',
   png: 'image/png',
+};
+
+const COPY_TOAST_KEYS: Record<ClipboardImageFormat, keyof Translations> = {
+  svg: 'toast.copyToClipboard.svg',
+  png: 'toast.copyToClipboard.png',
 };
 
 const hasClipboardWriteSupport = () => {
@@ -56,10 +63,25 @@ const writeBlobToClipboard = async (
   await navigator.clipboard.write([new ClipboardItem(item)]);
 };
 
-const getSvgBlob = async (board: PlaitBoard, elements?: ExportElements) => {
-  const backgroundColor = getBackgroundColor(board);
+const showCopySuccessToast = (
+  board: PlaitBoard,
+  format: ClipboardImageFormat,
+  isTransparent: boolean
+) => {
+  const { t } = i18nInsidePlaitHook(board);
+
+  (board as DrawnixBoard).showToast?.({
+    type: 'success',
+    message: t(COPY_TOAST_KEYS[format]),
+    description: isTransparent ? t('toast.copyToClipboard.mode.transparent') : undefined,
+  });
+};
+
+const getSvgBlob = async (board: PlaitBoard, isTransparent: boolean, elements?: ExportElements) => {
+  const backgroundColor = getBackgroundColor(board) || 'white';
+  const fillStyle = isTransparent ? TRANSPARENT : backgroundColor;
   const svgData = await toSvgData(board, {
-    fillStyle: isWhite(backgroundColor) ? TRANSPARENT : backgroundColor,
+    fillStyle,
     padding: 20,
     ratio: 4,
     elements,
@@ -83,9 +105,11 @@ const getImageBlob = async (
 };
 
 export const saveAsSvg = (board: PlaitBoard) => {
+  const exportTransparent = !!(board as DrawnixBoard).appState?.exportTransparent;
   const selectedElements = getSelectedElements(board);
   return getSvgBlob(
     board,
+    exportTransparent,
     selectedElements.length > 0 ? selectedElements : undefined
   ).then((blob) => {
     const imageName = `drawnix-${new Date().getTime()}.svg`;
@@ -93,15 +117,16 @@ export const saveAsSvg = (board: PlaitBoard) => {
   });
 };
 
-export const saveAsImage = (board: PlaitBoard, isTransparent: boolean) => {
+export const saveAsPng = (board: PlaitBoard) => {
+  const exportTransparent = !!(board as DrawnixBoard).appState?.exportTransparent;
   const selectedElements = getSelectedElements(board);
   getImageBlob(
     board,
-    isTransparent,
+    exportTransparent,
     selectedElements.length > 0 ? selectedElements : undefined
   ).then((imageBlob) => {
     if (imageBlob) {
-      const ext = isTransparent ? 'png' : 'jpg';
+      const ext = 'png';
       const imageName = `drawnix-${new Date().getTime()}.${ext}`;
       download(imageBlob, imageName);
     }
@@ -109,44 +134,39 @@ export const saveAsImage = (board: PlaitBoard, isTransparent: boolean) => {
 };
 
 export const copySelectionAsSvg = async (board: PlaitBoard) => {
+  const copyTransparent = !!(board as DrawnixBoard).appState?.copyTransparent;
   const selectedElements = getSelectedElements(board);
   if (selectedElements.length === 0) {
     return;
   }
   const [blob, pngBlob] = await Promise.all([
-    getSvgBlob(board, selectedElements),
-    getImageBlob(board, true, selectedElements),
+    getSvgBlob(board, copyTransparent, selectedElements),
+    getImageBlob(board, copyTransparent, selectedElements),
   ]);
   await writeBlobToClipboard('svg', blob, pngBlob);
+  showCopySuccessToast(board, 'svg', copyTransparent);
 };
 
-export const copySelectionAsPng = async (
-  board: PlaitBoard,
-  withBackground = false
-) => {
+export const copySelectionAsPng = async (board: PlaitBoard) => {
+  const copyTransparent = !!(board as DrawnixBoard).appState?.copyTransparent;
   const selectedElements = getSelectedElements(board);
   if (selectedElements.length === 0) {
     return;
   }
-  const imageBlob = await getImageBlob(
-    board,
-    !withBackground,
-    selectedElements
-  );
+  const imageBlob = await getImageBlob(board, copyTransparent, selectedElements);
   if (!imageBlob) {
     return;
   }
   // The clipboard only gets image/png. The background choice is controlled by
   // how the image is rendered before writing to the clipboard.
   await writeBlobToClipboard('png', imageBlob);
+  showCopySuccessToast(board, 'png', copyTransparent);
 };
 
 export const addImage = async (board: PlaitBoard) => {
   const imageFile = await fileOpen({
     description: 'Image',
-    extensions: Object.keys(
-      IMAGE_MIME_TYPES
-    ) as (keyof typeof IMAGE_MIME_TYPES)[],
+    extensions: Object.keys(IMAGE_MIME_TYPES) as (keyof typeof IMAGE_MIME_TYPES)[],
   });
   insertImage(board, imageFile);
 };

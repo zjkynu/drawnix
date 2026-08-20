@@ -95,9 +95,7 @@ export const Wrapper: React.FC<WrapperProps> = ({
     const hasViewportChanged = board.operations.some((o) =>
       PlaitOperation.isSetViewportOperation(o)
     );
-    const hasThemeChanged = board.operations.some((o) =>
-      PlaitOperation.isSetThemeOperation(o)
-    );
+    const hasThemeChanged = board.operations.some((o) => PlaitOperation.isSetThemeOperation(o));
     const hasChildrenChanged =
       board.operations.length > 0 &&
       !board.operations.every(
@@ -128,13 +126,20 @@ export const Wrapper: React.FC<WrapperProps> = ({
       board,
       listRender,
     }));
-  }, [board, onChange, onSelectionChange, onValueChange]);
+  }, [
+    board,
+    listRender,
+    onChange,
+    onSelectionChange,
+    onThemeChange,
+    onValueChange,
+    onViewportChange,
+  ]);
 
   useEffect(() => {
     BOARD_TO_ON_CHANGE.set(board, () => {
       const isOnlySetSelection =
-        board.operations.length &&
-        board.operations.every((op) => op.type === 'set_selection');
+        board.operations.length && board.operations.every((op) => op.type === 'set_selection');
       if (isOnlySetSelection) {
         listRender.update(board.children, {
           board: board,
@@ -144,8 +149,7 @@ export const Wrapper: React.FC<WrapperProps> = ({
         return;
       }
       const isSetViewport =
-        board.operations.length &&
-        board.operations.some((op) => op.type === 'set_viewport');
+        board.operations.length && board.operations.some((op) => op.type === 'set_viewport');
       if (isSetViewport && isFromScrolling(board)) {
         setIsFromScrolling(board, false);
         listRender.update(board.children, {
@@ -168,8 +172,7 @@ export const Wrapper: React.FC<WrapperProps> = ({
       updateViewportOffset(board);
       const selectedElements = getSelectedElements(board);
       selectedElements.forEach((element) => {
-        const elementRef =
-          PlaitElement.getElementRef<PlaitCommonElementRef>(element);
+        const elementRef = PlaitElement.getElementRef<PlaitCommonElementRef>(element);
         elementRef.updateActiveSection();
       });
     });
@@ -182,7 +185,7 @@ export const Wrapper: React.FC<WrapperProps> = ({
       BOARD_TO_ON_CHANGE.delete(board);
       BOARD_TO_AFTER_CHANGE.delete(board);
     };
-  }, [board]);
+  }, [board, listRender, onContextChange]);
 
   const isFirstRender = useRef(true);
 
@@ -204,11 +207,10 @@ export const Wrapper: React.FC<WrapperProps> = ({
       });
       BoardTransforms.fitViewport(board);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  return (
-    <BoardContext.Provider value={context}>{children}</BoardContext.Provider>
-  );
+  return <BoardContext.Provider value={context}>{children}</BoardContext.Provider>;
 };
 
 const initializeBoard = (
@@ -225,11 +227,7 @@ const initializeBoard = (
           withSelection(
             withMoving(
               withBoard(
-                withI18n(
-                  withOptions(
-                    withReact(withImage(withText(createBoard(value, options))))
-                  )
-                )
+                withI18n(withOptions(withReact(withImage(withText(createBoard(value, options))))))
               )
             )
           )
